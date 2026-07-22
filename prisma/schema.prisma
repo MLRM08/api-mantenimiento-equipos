@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EstadoEquipo {
+  OPERATIVO
+  EN_MANTENIMIENTO
+  BAJA
+}
+
+// 1. TABLA MAESTRA
+model Equipo {
+  id             String          @id @default(uuid())
+  nombre         String
+  codigoSerie    String          @unique
+  ubicacion      String
+  estado         EstadoEquipo    @default(OPERATIVO)
+  mantenimientos Mantenimiento[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+// 2. TABLA TRANSACCIONAL
+model Mantenimiento {
+  id          String   @id @default(uuid())
+  equipoId    String
+  equipo      Equipo   @relation(fields: [equipoId], references: [id], onDelete: Cascade)
+  tecnico     String
+  descripcion String
+  costo       Float
+  fecha       DateTime @default(now())
+}
